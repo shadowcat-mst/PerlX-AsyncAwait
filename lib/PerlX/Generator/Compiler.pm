@@ -45,6 +45,30 @@ sub pmc_compile {
       my $gen = '__GEN_'.$sym_gen++;
       "do { __gen_suspend '${gen}', $2; ${gen}: __gen_sent }";
     }xeg;
+    # I deleted the refaliasing support part temporarily because argh
+    # I also deleted support for 'our $foo' and 'state $foo' because wtf
+    $new_block =~ s!
+     for(?:each)?+ \b
+     (?>(?&PerlOWS))
+     (?:
+         (?:
+             my
+             (?>(?&PerlOWS)) ((?&PerlVariableScalar))
+         )?+
+         (?>(?&PerlOWS))
+         (?> ((?&PerlParenthesesList)) )
+         (?>(?&PerlOWS))
+         {
+      )
+      $grammar
+    !
+      my ($name, $over) = ($1, $2);
+      my $gen_ary_a = '@__gen_'.$sym_gen++;
+      (my $gen_ary_s = $gen_ary_a) =~ s/^\@/\$/;
+      my $gen_idx = '$__gen_'.$sym_gen++;
+      "my ${gen_ary_a} = ${over}; for (my ${gen_idx} = 0; ${gen_idx} < ${gen_ary_a}; ${gen_idx}++) { my ${name} = ${gen_ary_s}[${gen_idx}];";
+    !xeg;
+#warn "New: ${new_block}"; die;
     substr($code, $start, $len) = $new_block;
     $offset += length($new_block) - $len;
   }
