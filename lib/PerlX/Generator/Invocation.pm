@@ -1,6 +1,7 @@
 package PerlX::Generator::Invocation;
 
 use strictures 2;
+use Carp 'croak';
 use Moo;
 
 has _resume_with => (is => 'rw');
@@ -9,6 +10,7 @@ has code => (is => 'ro', required => 1);
 has lexical_context => (is => 'ro', required => 1);
 has start_args => (is => 'ro', required => 1);
 has done => (is => 'rwp');
+has return_value => (is => 'rwp');
 
 sub next {
   my ($self, $value) = @_;
@@ -19,7 +21,8 @@ sub next {
   local our $Sent_Value = $value;
   local our $Yielded_Value;
 
-  $self->code->($self->_resume_with ? () : @{$self->start_args});
+  # should set done here on exception
+  $self->_set_return_value([ $self->code->($self->_resume_with ? () : @{$self->start_args}) ]);
 
   $self->_resume_with(undef);
   $self->_set_done(1);
@@ -55,7 +58,7 @@ sub _gen_resume {
 }
 
 sub _gen_sent {
-  if (our $Sent_Error) { die $Sent_Error }
+  if (our $Sent_Error) { croak $Sent_Error }
   our $Sent_Value
 }
 

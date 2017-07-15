@@ -10,24 +10,28 @@ our $Found_Start;
 
 our @Found;
 
-my $grammar = qr{
-  (?(DEFINE)
-    (?<PerlCall>
-      (?:
-        generator
-        (?&PerlOWS)
-        (?{ local $Found_Start = pos() })
-        (?&PerlBlock)
-        (?{ push @Found, [ $Found_Start, pos() - $Found_Start ] })
-      )
-      | (?&PerlStdCall)
-    )
-  )
-  $PPR::X::GRAMMAR
-}x;
+sub top_keyword { 'generator' }
+
+sub yield_keyword { 'yield' }
 
 sub pmc_compile {
-  my (undef, $code) = @_;
+  my ($class, $code) = @_;
+  my ($top, $yield) = ($class->top_keyword, $class->yield_keyword);
+  my $grammar = qr{
+    (?(DEFINE)
+      (?<PerlCall>
+        (?:
+          ${top}
+          (?&PerlOWS)
+          (?{ local $Found_Start = pos() })
+          (?&PerlBlock)
+          (?{ push @Found, [ $Found_Start, pos() - $Found_Start ] })
+        )
+        | (?&PerlStdCall)
+      )
+    )
+    $PPR::X::GRAMMAR
+  }x;
   local @Found;
   unless ($code =~ /\A (?&PerlDocument) \Z $grammar/x) {
     warn "Failed to parse file; expect complication errors, sorry.\n";
@@ -41,7 +45,7 @@ sub pmc_compile {
     my $block = substr($code, $start, $len);
     my $new_block = $block;
     $new_block =~ s/^{/{ __gen_resume; / or die "Whither block start?";
-    $new_block =~ s{(yield(?&PerlOWS)((?&PerlCommaList)?+)) $grammar}{
+    $new_block =~ s{(${yield}(?&PerlOWS)((?&PerlCommaList)?+)) $grammar}{
       my $gen = '__GEN_'.$sym_gen++;
       "do { __gen_suspend '${gen}', $2; ${gen}: __gen_sent }";
     }xeg;
