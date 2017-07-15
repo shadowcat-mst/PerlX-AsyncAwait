@@ -29,6 +29,14 @@ sub next {
   return $Yielded_Value;
 }
 
+sub error {
+  my ($self, $error) = @_;
+
+  die "Whut" if $self->done or not $self->_resume_with;
+  local our $Sent_Error = $error;
+  $self->next;
+}
+
 sub _gen_suspend {
   my ($self, $label, $yielded) = @_;
   our $Yielded_Value = $yielded;
@@ -46,6 +54,9 @@ sub _gen_resume {
   no warnings 'exiting'; no warnings 'deprecated'; goto $state->{label};
 }
 
-sub _gen_sent { our $Sent_Value }
+sub _gen_sent {
+  if (our $Sent_Error) { die $Sent_Error }
+  our $Sent_Value
+}
 
 1;
