@@ -12,7 +12,7 @@ my $http = Net::Async::HTTP->new;
 
 my $loop = IO::Async::Loop->new->$_tap(add => $http);
 
-my $go = async {
+my $go = async_sub {
   warn "Starting";
   my $res = await $http->do_request(request => GET("http://trout.me.uk"));
   return $res->content;

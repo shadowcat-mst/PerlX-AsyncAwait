@@ -3,7 +3,7 @@
 #line 1
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); if (unpack('%32N*',
-$F=readline(*F)) != 0x2FCBA19C) { use Filter::Util::Call; my $f = $F;
+$F=readline(*F)) != 0x8F3F16FE) { use Filter::Util::Call; my $f = $F;
 filter_add(sub { filter_del(); 1 while &filter_read; $_ = $f; 1; })}}
 #line 1
 package AA;
@@ -19,7 +19,7 @@ my $http = Net::Async::HTTP->new;
 
 my $loop = IO::Async::Loop->new->$_tap(add => $http);
 
-my $go = async { __gen_resume; 
+my $go = async_sub { __gen_resume; 
   warn "Starting";
   my $res = do { __gen_suspend '__GEN_A001', $http->do_request(request => GET("http://trout.me.uk")); __GEN_A001: __gen_sent };
   return $res->content;

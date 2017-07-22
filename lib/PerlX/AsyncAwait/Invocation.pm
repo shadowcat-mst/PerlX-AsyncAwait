@@ -8,7 +8,10 @@ use Moo;
 
 extends 'PerlX::Generator::Invocation';
 
-has completion_future => (is => 'lazy', builder => sub { Future->new });
+has completion_future => (
+  is => 'lazy',
+  builder => sub { Future->new },
+);
 
 has awaiting_future => (is => 'rwp');
 
@@ -26,7 +29,7 @@ sub step {
     $self->completion_future->done(@{$self->return_value});
     return $self;
   }
-  $f->on_ready($self->curry::weak::step);
+  $f->on_ready($self->curry::step);
   $self->_set_awaiting_future($f);
   return $self;
 }

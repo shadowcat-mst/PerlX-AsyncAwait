@@ -2,23 +2,26 @@ package PerlX::AsyncAwait::AsyncSub;
 
 use strictures 2;
 use PerlX::AsyncAwait::Invocation;
+use Scalar::Util qw(weaken);
 use Moo;
 
 extends 'PerlX::Generator::Object';
 
 sub invocation_class { 'PerlX::AsyncAwait::Invocation' }
 
-has invocation_futures => (is => 'ro', default => sub { {} });
-
 around start => sub {
   my ($orig, $self, @args) = @_;
   my $inv = $self->$orig(@args)->step;
   my $f = $inv->completion_future;
   return $f if $f->is_ready;
-  (my $if = $self->invocation_futures)->{$f} = $inv;
-  my $key = "$f";
-  $f->on_ready(sub { my ($if, $key) = @_; sub { delete $if->{$key} } }->($if, $key));
-  return $f;
+  return $self->_tweaked_completion_future($inv);
 };
+
+sub _tweaked_completion_future {
+  my $inv = $_[1];
+  weaken($inv->{completion_future});
+  $inv->completion_future->on_ready(sub { undef $inv });
+  return $inv->completion_future;
+}
 
 1;
