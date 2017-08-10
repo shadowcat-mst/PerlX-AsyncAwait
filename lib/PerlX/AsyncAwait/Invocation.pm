@@ -3,7 +3,6 @@ package PerlX::AsyncAwait::Invocation;
 use strictures 2;
 use Future;
 use curry::weak;
-use Carp 'croak';
 use Moo;
 
 extends 'PerlX::Generator::Invocation';
@@ -46,7 +45,7 @@ around _gen_suspend => sub {
 sub _gen_sent {
   my $f = our $Ready_Future;
   if ($f->is_failed) {
-    croak $f->failure;
+    die $f->failure;
   }
   $f->get;
 }
