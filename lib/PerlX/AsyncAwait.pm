@@ -2,7 +2,7 @@ package PerlX::AsyncAwait;
 
 use strictures 2;
 
-our $VERSION = '0.001001';
+our $VERSION = '0.001002';
 
 =head1 NAME
 
