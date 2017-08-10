@@ -8,6 +8,10 @@ our $VERSION = '0.001001';
 
 PerlX::AsyncAwait - async/await keywords in pure perl
 
+=head1 EXPERIMENTAL
+
+This is batshit crazy, even for mst. No warranty, express or implied.
+
 =head1 SYNOPSIS
 
 First recommendation:
