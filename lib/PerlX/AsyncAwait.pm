@@ -78,7 +78,7 @@ None yet - maybe this software is perfect! (ahahahahahahahahaha)
 
 =head1 COPYRIGHT
 
-Copyright (c) 2017 the Method::Signatures::PP L</AUTHOR> and L</CONTRIBUTORS>
+Copyright (c) 2017 the PerlX::AsyncAwait L</AUTHOR> and L</CONTRIBUTORS>
 as listed above.
 
 =head1 LICENSE
